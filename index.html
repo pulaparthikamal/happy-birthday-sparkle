@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Sharmila! 🎂</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const Gift = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="gift" className={className}></i>;
+    };
+
+    const Sparkles = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="sparkles" className={className}></i>;
+    };
+
+    const Heart = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="heart" className={className}></i>;
+    };
+
+    const Cake = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="cake" className={className}></i>;
+    };
+
+    const Trophy = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="trophy" className={className}></i>;
+    };
+
+    const Lightbulb = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="lightbulb" className={className}></i>;
+    };
+
+    const Download = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="download" className={className}></i>;
+    };
+
+    const Copy = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="copy" className={className}></i>;
+    };
+
+    const Check = ({ className }) => {
+      useEffect(() => { lucide.createIcons(); }, []);
+      return <i data-lucide="check" className={className}></i>;
+    };
+
+    function BirthdaySudoku() {
+      const [gameState, setGameState] = useState('intro');
+      const [showHint, setShowHint] = useState(false);
+      const [confetti, setConfetti] = useState([]);
+      const [balloons, setBalloons] = useState([]);
+      const [selectedCell, setSelectedCell] = useState(null);
+      const [mistakes, setMistakes] = useState(0);
+      const [copied, setCopied] = useState(false);
+      
+      // Amazon Gift Card Details (Replace with actual details)
+      const giftCardCode = "MWXA-UU4APW-KXMW";
+      const giftCardAmount = "₹250";
+      const giftCardLink = "https://www.amazon.in/g/BKBD0FTPIV07TLQB?ref=gc_typ";
+      
+      const solution = [
+        [2, 4, 1, 3],
+        [1, 3, 4, 2],
+        [4, 2, 3, 1],
+        [3, 1, 2, 4]
+      ];
+      
+      const initialPuzzle = [
+        [2, 0, 0, 0],
+        [0, 3, 4, 0],
+        [4, 0, 0, 1],
+        [0, 0, 2, 4]
+      ];
+      
+      const [grid, setGrid] = useState(initialPuzzle.map(row => [...row]));
+      const [fixedCells] = useState(
+        initialPuzzle.map(row => row.map(cell => cell !== 0))
+      );
+
+      useEffect(() => {
+        const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
+          id: i,
+          left: Math.random() * 100,
+          delay: Math.random() * 3,
+          duration: 3 + Math.random() * 4,
+          color: ['#FF1493', '#FFD700', '#FF69B4', '#FFA500', '#9370DB'][Math.floor(Math.random() * 5)]
+        }));
+        setConfetti(confettiPieces);
+
+        const balloonElements = Array.from({ length: 15 }, (_, i) => ({
+          id: i,
+          left: Math.random() * 100,
+          delay: Math.random() * 5,
+          duration: 8 + Math.random() * 6,
+          color: ['#FF1493', '#FFD700', '#FF69B4', '#9370DB', '#FF6B9D'][i % 5]
+        }));
+        setBalloons(balloonElements);
+      }, []);
+
+      useEffect(() => {
+        const handleKeyPress = (e) => {
+          if (gameState !== 'puzzle' || !selectedCell) return;
+          
+          const { row, col } = selectedCell;
+          if (fixedCells[row][col]) return;
+          
+          if (e.key >= '1' && e.key <= '4') {
+            handleNumberClick(parseInt(e.key));
+          }
+          else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+            handleNumberClick(0);
+          }
+          else if (e.key.startsWith('Arrow')) {
+            e.preventDefault();
+            let newRow = row;
+            let newCol = col;
+            
+            if (e.key === 'ArrowUp' && row > 0) newRow--;
+            if (e.key === 'ArrowDown' && row < 3) newRow++;
+            if (e.key === 'ArrowLeft' && col > 0) newCol--;
+            if (e.key === 'ArrowRight' && col < 3) newCol++;
+            
+            setSelectedCell({ row: newRow, col: newCol });
+          }
+        };
+        
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+      }, [gameState, selectedCell, fixedCells]);
+
+      const checkComplete = (currentGrid) => {
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (currentGrid[i][j] !== solution[i][j]) {
+              return false;
+            }
+          }
+        }
+        return true;
+      };
+
+      const handleCellClick = (row, col) => {
+        if (fixedCells[row][col]) return;
+        setSelectedCell({ row, col });
+      };
+
+      const handleNumberClick = (num) => {
+        if (!selectedCell) return;
+        
+        const { row, col } = selectedCell;
+        const newGrid = grid.map(r => [...r]);
+        newGrid[row][col] = num;
+        setGrid(newGrid);
+        
+        if (num !== 0 && num !== solution[row][col]) {
+          setMistakes(prev => prev + 1);
+        }
+        
+        if (checkComplete(newGrid)) {
+          setTimeout(() => {
+            setGameState('flipping');
+            setTimeout(() => {
+              setGameState('revealed');
+            }, 1000);
+          }, 500);
+        }
+      };
+
+      const startGame = () => {
+        setGameState('puzzle');
+      };
+
+      const copyToClipboard = async () => {
+        try {
+          await navigator.clipboard.writeText(giftCardCode);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      };
+
+      const getCellColor = (row, col, value) => {
+        if (fixedCells[row][col]) return 'bg-pink-600/60 text-white font-bold';
+        if (selectedCell?.row === row && selectedCell?.col === col) return 'bg-yellow-400/40 border-yellow-300';
+        if (value === 0) return 'bg-purple-900/40';
+        return 'bg-purple-600/30 text-pink-300';
+      };
+
+      useEffect(() => {
+        lucide.createIcons();
+      });
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-pink-600 via-purple-600 to-blue-600 relative overflow-hidden">
+          {confetti.map(piece => (
+            <div
+              key={piece.id}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${piece.left}%`,
+                animation: `confettiFall ${piece.duration}s ease-in-out infinite`,
+                animationDelay: `${piece.delay}s`,
+                width: '10px',
+                height: '10px',
+                backgroundColor: piece.color,
+                borderRadius: '2px'
+              }}
+            />
+          ))}
+          
+          {balloons.map(balloon => (
+            <div
+              key={balloon.id}
+              className="absolute pointer-events-none text-4xl"
+              style={{
+                left: `${balloon.left}%`,
+                bottom: '-100px',
+                animation: `balloonFloat ${balloon.duration}s ease-in-out infinite`,
+                animationDelay: `${balloon.delay}s`,
+              }}
+            >
+              🎈
+            </div>
+          ))}
+          
+          <style>{`
+            @keyframes confettiFall {
+              0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+              100% { transform: translateY(100vh) rotate(720deg); opacity: 0.3; }
+            }
+            @keyframes balloonFloat {
+              0% { transform: translateY(0) rotate(-5deg); }
+              50% { transform: translateY(-80vh) rotate(5deg); }
+              100% { transform: translateY(-100vh) rotate(-5deg); }
+            }
+            @keyframes flip {
+              0% { transform: perspective(1000px) rotateY(0deg); }
+              100% { transform: perspective(1000px) rotateY(180deg); }
+            }
+            .flip-card {
+              animation: flip 1s ease-in-out;
+            }
+            @keyframes heartbeat {
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.1); }
+            }
+            .heartbeat {
+              animation: heartbeat 1.5s ease-in-out infinite;
+            }
+          `}</style>
+
+          <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+            {gameState === 'intro' && (
+              <div className="max-w-lg w-full">
+                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-4 border-pink-400/50 shadow-2xl">
+                  <div className="text-center space-y-6">
+                    <div className="flex justify-center">
+                      <div className="relative heartbeat">
+                        <Cake className="w-24 h-24 text-pink-300" />
+                        <Sparkles className="w-10 h-10 text-yellow-300 absolute -top-3 -right-3 animate-pulse" />
+                        <Heart className="w-8 h-8 text-red-400 absolute -bottom-2 -left-2 animate-bounce" />
+                      </div>
+                    </div>
+                    
+                    <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+                      🎂 Happy Birthday Sparkle! 🎉
+                    </h1>
+                    
+                    <div className="bg-gradient-to-r from-pink-600/40 to-purple-600/40 rounded-2xl p-6 space-y-3 border-2 border-pink-300/30">
+                      <p className="text-3xl font-bold text-pink-200">
+                        The charm of a day meant for beginnings — that's you. ✨
+                      </p>
+                      <p className="text-gray-200 mt-4">
+                        Solve the puzzle to unlock your special gift! 🎁
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={startGame}
+                      className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white font-bold py-5 px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-3 text-lg"
+                    >
+                      <Gift className="w-7 h-7" />
+                      Start Your Birthday Challenge!
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {gameState === 'puzzle' && (
+              <div className="max-w-2xl w-full">
+                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-6 md:p-8 border-4 border-purple-400/50 shadow-2xl">
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                        🧩 Sweet in taste. Waiting for the sweetest woman to win me.
+                      </h2>
+                      <p className="text-pink-200 text-lg font-semibold">
+                        Each row and column: 1, 2, 3, 4
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-br from-pink-600/40 to-pink-800/40 rounded-xl p-4 border-2 border-pink-400/50">
+                        <p className="text-sm text-pink-200 font-semibold">Mistakes</p>
+                        <p className="text-3xl font-bold text-white">{mistakes}</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-600/40 to-blue-600/40 rounded-xl p-4 border-2 border-purple-400/50">
+                        <p className="text-sm text-purple-200 font-semibold">Progress</p>
+                        <p className="text-3xl font-bold text-white">
+                          {grid.flat().filter(n => n !== 0).length}/16
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-black/40 rounded-2xl p-4 border-2 border-pink-500/50">
+                      <div className="grid grid-cols-4 gap-1 max-w-sm mx-auto">
+                        {grid.map((row, rowIdx) => (
+                          row.map((cell, colIdx) => (
+                            <button
+                              key={`${rowIdx}-${colIdx}`}
+                              onClick={() => handleCellClick(rowIdx, colIdx)}
+                              disabled={fixedCells[rowIdx][colIdx]}
+                              className={`
+                                aspect-square flex items-center justify-center
+                                text-2xl md:text-3xl font-bold rounded-lg
+                                border-2 transition-all
+                                ${getCellColor(rowIdx, colIdx, cell)}
+                                ${fixedCells[rowIdx][colIdx] ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
+                                ${(rowIdx + 1) % 2 === 0 && rowIdx !== 3 ? 'mb-2' : ''}
+                                ${(colIdx + 1) % 2 === 0 && colIdx !== 3 ? 'mr-2' : ''}
+                              `}
+                            >
+                              {cell !== 0 ? cell : ''}
+                            </button>
+                          ))
+                        ))}
+                      </div>
+
+                      <div className="mt-6 flex justify-center gap-2 flex-wrap">
+                        {[1, 2, 3, 4, 0].map(num => (
+                          <button
+                            key={num}
+                            onClick={() => handleNumberClick(num)}
+                            disabled={!selectedCell}
+                            className={`
+                              w-14 h-14 rounded-xl font-bold text-xl
+                              transition-all transform
+                              ${num === 0 
+                                ? 'bg-red-500/60 hover:bg-red-600/70 text-white border-2 border-red-300' 
+                                : 'bg-gradient-to-br from-pink-500/60 to-purple-500/60 hover:from-pink-600/70 hover:to-purple-600/70 text-white border-2 border-pink-300'
+                              }
+                              ${selectedCell ? 'hover:scale-110 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
+                            `}
+                          >
+                            {num === 0 ? '✕' : num}
+                          </button>
+                        ))}
+                      </div>
+
+                      {selectedCell && (
+                        <p className="text-center text-sm text-pink-200 mt-3 font-semibold">
+                          Row {selectedCell.row + 1}, Col {selectedCell.col + 1}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="bg-purple-900/40 rounded-xl p-4 border-2 border-purple-400/50">
+                      <button
+                        onClick={() => setShowHint(!showHint)}
+                        className="w-full flex items-center justify-between text-yellow-300 hover:text-yellow-200 transition font-semibold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Lightbulb className="w-5 h-5" />
+                          <span>Need Help?</span>
+                        </div>
+                        <span className="text-2xl">{showHint ? '▼' : '▶'}</span>
+                      </button>
+                      
+                      {showHint && (
+                        <div className="mt-4 p-4 bg-yellow-500/20 rounded-lg border-2 border-yellow-400/40 space-y-2">
+                          <p className="text-sm text-white font-semibold">• Each row: 1, 2, 3, 4 (no repeats)</p>
+                          <p className="text-sm text-white font-semibold">• Each column: 1, 2, 3, 4 (no repeats)</p>
+                          <p className="text-sm text-pink-200">• Pink = fixed clues</p>
+                          <p className="text-xs text-purple-200 mt-2 pt-2 border-t border-pink-400/30">
+                            Keyboard: 1-4 to fill • Backspace to clear • Arrows to move
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {gameState === 'flipping' && (
+              <div className="max-w-md w-full">
+                <div className="flip-card bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-4 border-yellow-400/60 shadow-2xl">
+                  <div className="text-center space-y-6">
+                    <Trophy className="w-32 h-32 text-yellow-300 mx-auto animate-bounce drop-shadow-lg" />
+                    <h2 className="text-5xl font-bold text-white drop-shadow-lg">
+                      🎉 Amazing! 🎉
+                    </h2>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {gameState === 'revealed' && (
+              <div className="max-w-4xl w-full max-h-screen overflow-y-auto py-4">
+                <div className="bg-gradient-to-br from-pink-500/40 to-purple-500/40 backdrop-blur-xl rounded-3xl p-6 md:p-8 border-4 border-pink-300/60 shadow-2xl">
+                  <div className="space-y-8">
+                    {/* Celebration Header */}
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center gap-4">
+                        <Heart className="w-16 h-16 text-red-400 animate-bounce" />
+                        <Cake className="w-20 h-20 text-pink-300 heartbeat" />
+                        <Heart className="w-16 h-16 text-red-400 animate-bounce" />
+                      </div>
+                      
+                      <h2 className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg">
+                        🎊 Congratulations Bae! 🎊
+                      </h2>
+                      
+                      <p className="text-2xl text-pink-100 font-semibold">
+                        You Proved Your Smartness Again 🌟
+                      </p>
+                    </div>
+
+                    {/* Dairy Milk Section */}
+                    <div className="bg-gradient-to-br from-purple-700/50 to-purple-900/50 rounded-2xl p-8 border-4 border-purple-400/60 shadow-xl">
+                      <h3 className="text-3xl font-bold text-white text-center mb-6 drop-shadow-lg">
+                      </h3>
+                      
+                      <div className="bg-white/10 rounded-xl p-6 border-2 border-pink-300/40 mb-6">
+                        <p className="text-2xl md:text-3xl font-bold text-center text-pink-200 italic leading-relaxed">
+                          "Help your Milky Beauty with a Dairy Milk" 💝
+                        </p>
+                      </div>
+
+                      {/* Dairy Milk Silk Image */}
+                      <div className="flex justify-center my-6">
+                        <div className="bg-purple-900/60 p-6 rounded-2xl border-4 border-pink-400/50 shadow-xl">
+                          <img 
+                            src="https://neelamfoodlandmumbai.com/cdn/shop/files/3296CADBURYDAIRYMILKSILKROASTALMONDCHOCOLATE58GM_1.jpg?v=1752068311" 
+                            alt="Cadbury Dairy Milk Silk Roast Almond" 
+                            className="w-64 h-64 object-contain rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Gift Card Section */}
+                    <div className="bg-gradient-to-br from-yellow-500/40 to-orange-500/40 rounded-2xl p-8 border-4 border-yellow-300/60 shadow-xl">
+                      <div className="text-center space-y-6">
+                        <Gift className="w-20 h-20 text-yellow-200 mx-auto animate-bounce" />
+                        
+                        <h3 className="text-3xl font-bold text-white drop-shadow-lg">
+                          🎁 Your Amazon Gift Card! 🎁
+                        </h3>
+                        
+                        <div className="bg-white rounded-xl p-6 shadow-2xl border-4 border-orange-400">
+                          <div className="mb-4">
+                            
+
+                          </div>
+                          
+                          <div className="space-y-4 text-gray-800">
+                            
+                            
+                            <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-lg">
+                              <p className="text-sm font-semibold text-purple-700 mb-2">Claim Code</p>
+                              <div className="flex items-center justify-center gap-3">
+                                <p className="text-2xl font-mono font-bold text-blue-700 tracking-wider break-all">
+                                  {giftCardCode}
+                                </p>
+                                <button
+                                  onClick={copyToClipboard}
+                                  className="flex-shrink-0 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition transform hover:scale-105 active:scale-95"
+                                  title="Copy code"
+                                >
+                                  {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                                </button>
+                              </div>
+                              {copied && (
+                                <p className="text-sm text-green-600 font-semibold mt-2">Copied to clipboard! ✓</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <a 
+                          href={giftCardLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-lg text-lg"
+                        >
+                          <Download className="w-6 h-6" />
+                          Redeem on Amazon
+                        </a>
+
+                        <p className="text-sm text-white/90 italic font-semibold">
+                          Click above to redeem your gift card on Amazon! 🛍️<br/>
+                          Use the claim code to add it to your account.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Birthday Wishes */}
+                    <div className="bg-gradient-to-br from-pink-600/40 to-red-600/40 rounded-2xl p-8 border-4 border-pink-400/60 text-center space-y-4">
+                      <h3 className="text-3xl font-bold text-white drop-shadow-lg">
+                        ✨ Thanks for Being a part of my Sweet Memory ✨
+                      </h3>
+                      
+                      <p className="text-xl text-pink-100 leading-relaxed">
+                        Wishing you a year filled with joy, laughter, and endless happiness! 🌟
+                      </p>
+                      
+                      <p className="text-2xl font-bold text-white">
+                        — By your Kamal 😊
+                      </p>
+                      
+                      <div className="pt-6 border-t-2 border-pink-300/40 space-y-2">
+                        <p className="text-lg text-pink-200 font-semibold">
+                          Happy Birthday, Charming 🎂🎉
+                        </p>
+                        <p className="text-xs text-pink-400 mt-4">
+                          Have an amazing year ahead! 🌈
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<BirthdaySudoku />);
+  </script>
+</body>
+</html>
