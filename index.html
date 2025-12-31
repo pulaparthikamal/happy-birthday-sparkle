@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Happy Birthday Sharmila! 🎂</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -95,7 +95,7 @@
       );
 
       useEffect(() => {
-        const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
+        const confettiPieces = Array.from({ length: 30 }, (_, i) => ({
           id: i,
           left: Math.random() * 100,
           delay: Math.random() * 3,
@@ -104,7 +104,7 @@
         }));
         setConfetti(confettiPieces);
 
-        const balloonElements = Array.from({ length: 15 }, (_, i) => ({
+        const balloonElements = Array.from({ length: 10 }, (_, i) => ({
           id: i,
           left: Math.random() * 100,
           delay: Math.random() * 5,
@@ -189,11 +189,38 @@
 
       const copyToClipboard = async () => {
         try {
-          await navigator.clipboard.writeText(giftCardCode);
+          // Modern clipboard API with fallback
+          if (navigator.clipboard && window.isSecureContext) {
+            // Use the modern clipboard API
+            await navigator.clipboard.writeText(giftCardCode);
+          } else {
+            // Fallback method for older browsers or non-HTTPS contexts
+            const textArea = document.createElement('textarea');
+            textArea.value = giftCardCode;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            if (!successful) {
+              throw new Error('Copy command failed');
+            }
+            
+            document.body.removeChild(textArea);
+          }
+          
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
+          
+          // Optional: Show a success message
+          console.log('Code copied to clipboard:', giftCardCode);
         } catch (err) {
           console.error('Failed to copy:', err);
+          // Fallback: Show the code in an alert for manual copy
+          alert(`Please copy the code manually:\n\n${giftCardCode}\n\nClick OK and then press Ctrl+C (Cmd+C on Mac) to copy.`);
         }
       };
 
@@ -218,8 +245,8 @@
                 left: `${piece.left}%`,
                 animation: `confettiFall ${piece.duration}s ease-in-out infinite`,
                 animationDelay: `${piece.delay}s`,
-                width: '10px',
-                height: '10px',
+                width: '8px',
+                height: '8px',
                 backgroundColor: piece.color,
                 borderRadius: '2px'
               }}
@@ -229,7 +256,7 @@
           {balloons.map(balloon => (
             <div
               key={balloon.id}
-              className="absolute pointer-events-none text-4xl"
+              className="absolute pointer-events-none text-3xl md:text-4xl"
               style={{
                 left: `${balloon.left}%`,
                 bottom: '-100px',
@@ -267,37 +294,37 @@
             }
           `}</style>
 
-          <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+          <div className="relative z-10 min-h-screen flex items-center justify-center p-2 sm:p-4">
             {gameState === 'intro' && (
-              <div className="max-w-lg w-full">
-                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-4 border-pink-400/50 shadow-2xl">
-                  <div className="text-center space-y-6">
+              <div className="w-full max-w-md mx-2">
+                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-2xl md:rounded-3xl p-4 md:p-8 border-4 border-pink-400/50 shadow-2xl">
+                  <div className="text-center space-y-4 md:space-y-6">
                     <div className="flex justify-center">
                       <div className="relative heartbeat">
-                        <Cake className="w-24 h-24 text-pink-300" />
-                        <Sparkles className="w-10 h-10 text-yellow-300 absolute -top-3 -right-3 animate-pulse" />
-                        <Heart className="w-8 h-8 text-red-400 absolute -bottom-2 -left-2 animate-bounce" />
+                        <Cake className="w-16 h-16 md:w-24 md:h-24 text-pink-300" />
+                        <Sparkles className="w-6 h-6 md:w-10 md:h-10 text-yellow-300 absolute -top-2 -right-2 md:-top-3 md:-right-3 animate-pulse" />
+                        <Heart className="w-5 h-5 md:w-8 md:h-8 text-red-400 absolute -bottom-1 -left-1 md:-bottom-2 md:-left-2 animate-bounce" />
                       </div>
                     </div>
                     
-                    <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+                    <h1 className="text-3xl md:text-5xl font-bold text-white drop-shadow-lg px-2">
                       🎂 Happy Birthday Sparkle! 🎉
                     </h1>
                     
-                    <div className="bg-gradient-to-r from-pink-600/40 to-purple-600/40 rounded-2xl p-6 space-y-3 border-2 border-pink-300/30">
-                      <p className="text-3xl font-bold text-pink-200">
+                    <div className="bg-gradient-to-r from-pink-600/40 to-purple-600/40 rounded-xl md:rounded-2xl p-3 md:p-6 space-y-2 md:space-y-3 border-2 border-pink-300/30">
+                      <p className="text-lg md:text-3xl font-bold text-pink-200">
                         The charm of a day meant for beginnings — that's you. ✨
                       </p>
-                      <p className="text-gray-200 mt-4">
+                      <p className="text-sm md:text-base text-gray-200 mt-2 md:mt-4">
                         Solve the puzzle to unlock your special gift! 🎁
                       </p>
                     </div>
 
                     <button
                       onClick={startGame}
-                      className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white font-bold py-5 px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-3 text-lg"
+                      className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white font-bold py-3 md:py-5 px-4 md:px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2 md:gap-3 text-sm md:text-lg"
                     >
-                      <Gift className="w-7 h-7" />
+                      <Gift className="w-5 h-5 md:w-7 md:h-7" />
                       Start Your Birthday Challenge!
                     </button>
                   </div>
@@ -306,33 +333,33 @@
             )}
 
             {gameState === 'puzzle' && (
-              <div className="max-w-2xl w-full">
-                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-6 md:p-8 border-4 border-purple-400/50 shadow-2xl">
-                  <div className="space-y-6">
+              <div className="w-full max-w-md mx-2">
+                <div className="bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-2xl md:rounded-3xl p-3 md:p-6 border-4 border-purple-400/50 shadow-2xl">
+                  <div className="space-y-4 md:space-y-6">
                     <div className="text-center">
-                      <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                      <h2 className="text-xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg px-2">
                         🧩 Sweet in taste. Waiting for the sweetest woman to win me.
                       </h2>
-                      <p className="text-pink-200 text-lg font-semibold">
+                      <p className="text-sm md:text-lg text-pink-200 font-semibold">
                         Each row and column: 1, 2, 3, 4
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-br from-pink-600/40 to-pink-800/40 rounded-xl p-4 border-2 border-pink-400/50">
-                        <p className="text-sm text-pink-200 font-semibold">Mistakes</p>
-                        <p className="text-3xl font-bold text-white">{mistakes}</p>
+                    <div className="grid grid-cols-2 gap-2 md:gap-4">
+                      <div className="bg-gradient-to-br from-pink-600/40 to-pink-800/40 rounded-xl p-3 md:p-4 border-2 border-pink-400/50">
+                        <p className="text-xs md:text-sm text-pink-200 font-semibold">Mistakes</p>
+                        <p className="text-2xl md:text-3xl font-bold text-white">{mistakes}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-purple-600/40 to-blue-600/40 rounded-xl p-4 border-2 border-purple-400/50">
-                        <p className="text-sm text-purple-200 font-semibold">Progress</p>
-                        <p className="text-3xl font-bold text-white">
+                      <div className="bg-gradient-to-br from-purple-600/40 to-blue-600/40 rounded-xl p-3 md:p-4 border-2 border-purple-400/50">
+                        <p className="text-xs md:text-sm text-purple-200 font-semibold">Progress</p>
+                        <p className="text-2xl md:text-3xl font-bold text-white">
                           {grid.flat().filter(n => n !== 0).length}/16
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-black/40 rounded-2xl p-4 border-2 border-pink-500/50">
-                      <div className="grid grid-cols-4 gap-1 max-w-sm mx-auto">
+                    <div className="bg-black/40 rounded-xl md:rounded-2xl p-2 md:p-4 border-2 border-pink-500/50">
+                      <div className="grid grid-cols-4 gap-0.5 md:gap-1 max-w-[280px] md:max-w-sm mx-auto">
                         {grid.map((row, rowIdx) => (
                           row.map((cell, colIdx) => (
                             <button
@@ -341,12 +368,12 @@
                               disabled={fixedCells[rowIdx][colIdx]}
                               className={`
                                 aspect-square flex items-center justify-center
-                                text-2xl md:text-3xl font-bold rounded-lg
+                                text-lg md:text-2xl lg:text-3xl font-bold rounded md:rounded-lg
                                 border-2 transition-all
                                 ${getCellColor(rowIdx, colIdx, cell)}
                                 ${fixedCells[rowIdx][colIdx] ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
-                                ${(rowIdx + 1) % 2 === 0 && rowIdx !== 3 ? 'mb-2' : ''}
-                                ${(colIdx + 1) % 2 === 0 && colIdx !== 3 ? 'mr-2' : ''}
+                                ${(rowIdx + 1) % 2 === 0 && rowIdx !== 3 ? 'mb-1 md:mb-2' : ''}
+                                ${(colIdx + 1) % 2 === 0 && colIdx !== 3 ? 'mr-1 md:mr-2' : ''}
                               `}
                             >
                               {cell !== 0 ? cell : ''}
@@ -355,14 +382,14 @@
                         ))}
                       </div>
 
-                      <div className="mt-6 flex justify-center gap-2 flex-wrap">
+                      <div className="mt-4 md:mt-6 flex justify-center gap-1 md:gap-2 flex-wrap">
                         {[1, 2, 3, 4, 0].map(num => (
                           <button
                             key={num}
                             onClick={() => handleNumberClick(num)}
                             disabled={!selectedCell}
                             className={`
-                              w-14 h-14 rounded-xl font-bold text-xl
+                              w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-lg md:rounded-xl font-bold text-base md:text-xl
                               transition-all transform
                               ${num === 0 
                                 ? 'bg-red-500/60 hover:bg-red-600/70 text-white border-2 border-red-300' 
@@ -377,29 +404,29 @@
                       </div>
 
                       {selectedCell && (
-                        <p className="text-center text-sm text-pink-200 mt-3 font-semibold">
+                        <p className="text-center text-xs md:text-sm text-pink-200 mt-2 md:mt-3 font-semibold">
                           Row {selectedCell.row + 1}, Col {selectedCell.col + 1}
                         </p>
                       )}
                     </div>
 
-                    <div className="bg-purple-900/40 rounded-xl p-4 border-2 border-purple-400/50">
+                    <div className="bg-purple-900/40 rounded-xl p-3 md:p-4 border-2 border-purple-400/50">
                       <button
                         onClick={() => setShowHint(!showHint)}
-                        className="w-full flex items-center justify-between text-yellow-300 hover:text-yellow-200 transition font-semibold"
+                        className="w-full flex items-center justify-between text-yellow-300 hover:text-yellow-200 transition font-semibold text-sm md:text-base"
                       >
                         <div className="flex items-center gap-2">
-                          <Lightbulb className="w-5 h-5" />
+                          <Lightbulb className="w-4 h-4 md:w-5 md:h-5" />
                           <span>Need Help?</span>
                         </div>
-                        <span className="text-2xl">{showHint ? '▼' : '▶'}</span>
+                        <span className="text-lg md:text-2xl">{showHint ? '▼' : '▶'}</span>
                       </button>
                       
                       {showHint && (
-                        <div className="mt-4 p-4 bg-yellow-500/20 rounded-lg border-2 border-yellow-400/40 space-y-2">
-                          <p className="text-sm text-white font-semibold">• Each row: 1, 2, 3, 4 (no repeats)</p>
-                          <p className="text-sm text-white font-semibold">• Each column: 1, 2, 3, 4 (no repeats)</p>
-                          <p className="text-sm text-pink-200">• Pink = fixed clues</p>
+                        <div className="mt-3 md:mt-4 p-2 md:p-4 bg-yellow-500/20 rounded-lg border-2 border-yellow-400/40 space-y-1 md:space-y-2">
+                          <p className="text-xs md:text-sm text-white font-semibold">• Each row: 1, 2, 3, 4 (no repeats)</p>
+                          <p className="text-xs md:text-sm text-white font-semibold">• Each column: 1, 2, 3, 4 (no repeats)</p>
+                          <p className="text-xs md:text-sm text-pink-200">• Pink = fixed clues</p>
                           <p className="text-xs text-purple-200 mt-2 pt-2 border-t border-pink-400/30">
                             Keyboard: 1-4 to fill • Backspace to clear • Arrows to move
                           </p>
@@ -412,11 +439,11 @@
             )}
 
             {gameState === 'flipping' && (
-              <div className="max-w-md w-full">
-                <div className="flip-card bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-4 border-yellow-400/60 shadow-2xl">
-                  <div className="text-center space-y-6">
-                    <Trophy className="w-32 h-32 text-yellow-300 mx-auto animate-bounce drop-shadow-lg" />
-                    <h2 className="text-5xl font-bold text-white drop-shadow-lg">
+              <div className="w-full max-w-md mx-2">
+                <div className="flip-card bg-gradient-to-br from-pink-500/30 to-purple-500/30 backdrop-blur-xl rounded-2xl md:rounded-3xl p-4 md:p-8 border-4 border-yellow-400/60 shadow-2xl">
+                  <div className="text-center space-y-4 md:space-y-6">
+                    <Trophy className="w-20 h-20 md:w-32 md:h-32 text-yellow-300 mx-auto animate-bounce drop-shadow-lg" />
+                    <h2 className="text-2xl md:text-5xl font-bold text-white drop-shadow-lg">
                       🎉 Amazing! 🎉
                     </h2>
                   </div>
@@ -425,83 +452,74 @@
             )}
 
             {gameState === 'revealed' && (
-              <div className="max-w-4xl w-full max-h-screen overflow-y-auto py-4">
-                <div className="bg-gradient-to-br from-pink-500/40 to-purple-500/40 backdrop-blur-xl rounded-3xl p-6 md:p-8 border-4 border-pink-300/60 shadow-2xl">
-                  <div className="space-y-8">
+              <div className="w-full max-w-4xl mx-2 max-h-screen overflow-y-auto py-4">
+                <div className="bg-gradient-to-br from-pink-500/40 to-purple-500/40 backdrop-blur-xl rounded-2xl md:rounded-3xl p-3 md:p-6 lg:p-8 border-4 border-pink-300/60 shadow-2xl">
+                  <div className="space-y-4 md:space-y-8">
                     {/* Celebration Header */}
-                    <div className="text-center space-y-4">
-                      <div className="flex justify-center gap-4">
-                        <Heart className="w-16 h-16 text-red-400 animate-bounce" />
-                        <Cake className="w-20 h-20 text-pink-300 heartbeat" />
-                        <Heart className="w-16 h-16 text-red-400 animate-bounce" />
+                    <div className="text-center space-y-2 md:space-y-4">
+                      <div className="flex justify-center gap-2 md:gap-4">
+                        <Heart className="w-10 h-10 md:w-16 md:h-16 text-red-400 animate-bounce" />
+                        <Cake className="w-14 h-14 md:w-20 md:h-20 text-pink-300 heartbeat" />
+                        <Heart className="w-10 h-10 md:w-16 md:h-16 text-red-400 animate-bounce" />
                       </div>
                       
-                      <h2 className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg">
+                      <h2 className="text-2xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
                         🎊 Congratulations Bae! 🎊
                       </h2>
                       
-                      <p className="text-2xl text-pink-100 font-semibold">
+                      <p className="text-base md:text-2xl text-pink-100 font-semibold">
                         You Proved Your Smartness Again 🌟
                       </p>
                     </div>
 
                     {/* Dairy Milk Section */}
-                    <div className="bg-gradient-to-br from-purple-700/50 to-purple-900/50 rounded-2xl p-8 border-4 border-purple-400/60 shadow-xl">
-                      <h3 className="text-3xl font-bold text-white text-center mb-6 drop-shadow-lg">
-                      </h3>
-                      
-                      <div className="bg-white/10 rounded-xl p-6 border-2 border-pink-300/40 mb-6">
-                        <p className="text-2xl md:text-3xl font-bold text-center text-pink-200 italic leading-relaxed">
+                    <div className="bg-gradient-to-br from-purple-700/50 to-purple-900/50 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 border-4 border-purple-400/60 shadow-xl">
+                      <div className="bg-white/10 rounded-xl p-4 md:p-6 border-2 border-pink-300/40 mb-4 md:mb-6">
+                        <p className="text-lg md:text-2xl lg:text-3xl font-bold text-center text-pink-200 italic leading-relaxed">
                           "Help your Milky Beauty with a Dairy Milk" 💝
                         </p>
                       </div>
 
                       {/* Dairy Milk Silk Image */}
-                      <div className="flex justify-center my-6">
-                        <div className="bg-purple-900/60 p-6 rounded-2xl border-4 border-pink-400/50 shadow-xl">
+                      <div className="flex justify-center my-4 md:my-6">
+                        <div className="bg-purple-900/60 p-3 md:p-4 lg:p-6 rounded-xl md:rounded-2xl border-4 border-pink-400/50 shadow-xl">
                           <img 
                             src="https://neelamfoodlandmumbai.com/cdn/shop/files/3296CADBURYDAIRYMILKSILKROASTALMONDCHOCOLATE58GM_1.jpg?v=1752068311" 
                             alt="Cadbury Dairy Milk Silk Roast Almond" 
-                            className="w-64 h-64 object-contain rounded-lg"
+                            className="w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 object-contain rounded-lg"
+                            loading="lazy"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Gift Card Section */}
-                    <div className="bg-gradient-to-br from-yellow-500/40 to-orange-500/40 rounded-2xl p-8 border-4 border-yellow-300/60 shadow-xl">
-                      <div className="text-center space-y-6">
-                        <Gift className="w-20 h-20 text-yellow-200 mx-auto animate-bounce" />
+                    <div className="bg-gradient-to-br from-yellow-500/40 to-orange-500/40 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 border-4 border-yellow-300/60 shadow-xl">
+                      <div className="text-center space-y-4 md:space-y-6">
+                        <Gift className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-yellow-200 mx-auto animate-bounce" />
                         
-                        <h3 className="text-3xl font-bold text-white drop-shadow-lg">
+                        <h3 className="text-xl md:text-3xl font-bold text-white drop-shadow-lg">
                           🎁 Your Amazon Gift Card! 🎁
                         </h3>
                         
-                        <div className="bg-white rounded-xl p-6 shadow-2xl border-4 border-orange-400">
-                          <div className="mb-4">
-                            
-
-                          </div>
-                          
-                          <div className="space-y-4 text-gray-800">
-                            
-                            
-                            <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-lg">
-                              <p className="text-sm font-semibold text-purple-700 mb-2">Claim Code</p>
-                              <div className="flex items-center justify-center gap-3">
-                                <p className="text-2xl font-mono font-bold text-blue-700 tracking-wider break-all">
+                        <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6 shadow-2xl border-4 border-orange-400">
+                          <div className="space-y-3 md:space-y-4 text-gray-800">
+                            <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-2 md:p-3 lg:p-4 rounded-lg">
+                              <p className="text-xs md:text-sm font-semibold text-purple-700 mb-1 md:mb-2">Claim Code</p>
+                              <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3">
+                                <p className="text-base md:text-xl lg:text-2xl font-mono font-bold text-blue-700 tracking-wider break-all text-center">
                                   {giftCardCode}
                                 </p>
                                 <button
                                   onClick={copyToClipboard}
-                                  className="flex-shrink-0 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition transform hover:scale-105 active:scale-95"
+                                  className="flex-shrink-0 bg-blue-500 hover:bg-blue-600 text-white p-2 md:p-3 rounded-lg transition transform hover:scale-105 active:scale-95"
                                   title="Copy code"
                                 >
-                                  {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                                  {copied ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <Copy className="w-4 h-4 md:w-5 md:h-5" />}
                                 </button>
                               </div>
                               {copied && (
-                                <p className="text-sm text-green-600 font-semibold mt-2">Copied to clipboard! ✓</p>
+                                <p className="text-xs md:text-sm text-green-600 font-semibold mt-1 md:mt-2">Copied to clipboard! ✓</p>
                               )}
                             </div>
                           </div>
@@ -511,38 +529,38 @@
                           href={giftCardLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-lg text-lg"
+                          className="inline-flex items-center justify-center gap-2 md:gap-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold py-2 md:py-4 px-4 md:px-8 rounded-xl transform transition hover:scale-105 active:scale-95 shadow-lg text-sm md:text-lg w-full md:w-auto"
                         >
-                          <Download className="w-6 h-6" />
+                          <Download className="w-4 h-4 md:w-6 md:h-6" />
                           Redeem on Amazon
                         </a>
 
-                        <p className="text-sm text-white/90 italic font-semibold">
-                          Click above to redeem your gift card on Amazon! 🛍️<br/>
+                        <p className="text-xs md:text-sm text-white/90 italic font-semibold">
+                          Click above to redeem your gift card on Amazon! 🛍️<br className="hidden md:block"/>
                           Use the claim code to add it to your account.
                         </p>
                       </div>
                     </div>
 
                     {/* Birthday Wishes */}
-                    <div className="bg-gradient-to-br from-pink-600/40 to-red-600/40 rounded-2xl p-8 border-4 border-pink-400/60 text-center space-y-4">
-                      <h3 className="text-3xl font-bold text-white drop-shadow-lg">
+                    <div className="bg-gradient-to-br from-pink-600/40 to-red-600/40 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 border-4 border-pink-400/60 text-center space-y-2 md:space-y-4">
+                      <h3 className="text-lg md:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg">
                         ✨ Thanks for Being a part of my Sweet Memory ✨
                       </h3>
                       
-                      <p className="text-xl text-pink-100 leading-relaxed">
+                      <p className="text-sm md:text-xl text-pink-100 leading-relaxed">
                         Wishing you a year filled with joy, laughter, and endless happiness! 🌟
                       </p>
                       
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-base md:text-2xl font-bold text-white">
                         — By your Kamal 😊
                       </p>
                       
-                      <div className="pt-6 border-t-2 border-pink-300/40 space-y-2">
-                        <p className="text-lg text-pink-200 font-semibold">
+                      <div className="pt-3 md:pt-6 border-t-2 border-pink-300/40 space-y-1 md:space-y-2">
+                        <p className="text-sm md:text-lg text-pink-200 font-semibold">
                           Happy Birthday, Charming 🎂🎉
                         </p>
-                        <p className="text-xs text-pink-400 mt-4">
+                        <p className="text-xs md:text-sm text-pink-400 mt-2 md:mt-4">
                           Have an amazing year ahead! 🌈
                         </p>
                       </div>
